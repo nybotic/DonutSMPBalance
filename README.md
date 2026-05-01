@@ -1,6 +1,6 @@
-# AccountSwitcher for Equicord
+# DonutSMPBalance for Equicord
 
-Save Discord accounts and switch between them from Equicord's user area button or a hotkey.
+Shows a DonutSMP money balance beside Discord chat usernames.
 
 Made and maintained by [Nybotic](https://github.com/nybotic).
 
@@ -9,15 +9,14 @@ Made and maintained by [Nybotic](https://github.com/nybotic).
 Clone this repository into your Equicord userplugins folder:
 
 ```sh
-git clone https://github.com/nybotic/AccountSwitcher src/userplugins/AccountSwitcher
+git clone https://github.com/nybotic/DonutSMPBalance src/userplugins/donutSMPBalance
 ```
 
 Then rebuild or restart Equicord.
 
 ## Usage
 
-- Enable `AccountSwitcher` in Equicord's plugin settings.
-- Log into each account once and click `Save Current Account` to add it.
-- Click the account switcher button in the user area to switch saved accounts or log out.
-- Saved accounts get default hotkeys of `Alt + 1`, `Alt + 2`, and so on. You can change each hotkey in the plugin settings.
-- Optional password encryption is available in the plugin settings.
+- Enable `DonutSMPBalance` in Equicord's plugin settings.
+- The plugin checks whether the message author is a member of the DonutSMP Discord server.
+- If they have a DonutSMP server nickname, it looks up that name on `https://donutstats.org/player.php?user=`.
+- When DonutStats returns a money value, the balance is shown beside their chat username.

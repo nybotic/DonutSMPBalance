@@ -1,79 +1,11 @@
-.vc-account-switcher-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.vc-account-switcher-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.vc-account-switcher-modal {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.vc-account-switcher-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.vc-account-switcher-row {
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) auto auto auto;
+.vc-donut-smp-balance {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px;
-    border-radius: 8px;
-    background: var(--background-modifier-accent);
-}
-
-.vc-account-switcher-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.vc-account-switcher-account {
-    min-width: 0;
-}
-
-.vc-account-switcher-name {
-    overflow: hidden;
-    color: var(--header-primary);
-    font-weight: 600;
-    text-overflow: ellipsis;
+    margin-left: 4px;
+    color: var(--text-positive);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: baseline;
     white-space: nowrap;
-}
-
-.vc-account-switcher-id {
-    overflow: hidden;
-    color: var(--text-muted);
-    font-size: 12px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.vc-account-switcher-keybind {
-    min-width: 72px;
-    color: var(--text-muted);
-    font-size: 12px;
-    text-align: center;
-}
-
-@media (max-width: 680px) {
-    .vc-account-switcher-row {
-        grid-template-columns: 40px minmax(0, 1fr);
-    }
-
-    .vc-account-switcher-row button,
-    .vc-account-switcher-keybind {
-        grid-column: 2;
-        width: 100%;
-    }
 }
