@@ -51,6 +51,10 @@ This plugin has two main files:
 
 Keep the plugin lightweight: chat decorations render often, so avoid extra store reads, repeated network calls, or long-running work in React render paths.
 
+## Data Source
+
+Balances come from public DonutStats player pages. If DonutStats changes its page markup, `native.ts` may need its balance parser updated.
+
 ## Troubleshooting
 
 - If no balance appears, confirm the user has a DonutSMP server nickname that includes their Minecraft name.

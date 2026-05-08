@@ -175,6 +175,7 @@ export default definePlugin({
     description: "Shows a DonutSMP money balance beside chat usernames when their DonutSMP Discord nickname matches a player.",
     tags: ["Chat", "Utility"],
     authors: [{ name: "Nybotic", id: 0n }],
+    source: "https://github.com/nybotic/DonutSMPBalance",
     dependencies: ["MessageDecorationsAPI"],
 
     renderMessageDecoration(props: MessageDecorationProps) {
