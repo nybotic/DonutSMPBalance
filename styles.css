@@ -9,3 +9,20 @@
     vertical-align: baseline;
     white-space: nowrap;
 }
+
+.vc-donut-smp-welcome-balance {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    color: #fff !important;
+    vertical-align: baseline;
+}
+
+.vc-donut-smp-welcome-balance .vc-donut-smp-balance {
+    margin-left: 0;
+    color: #fff !important;
+}
+
+.vc-donut-smp-welcome-anchor {
+    display: none;
+}

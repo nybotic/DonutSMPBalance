@@ -7,10 +7,12 @@
 import "./styles.css";
 
 import type { MessageDecorationProps } from "@api/MessageDecorations";
+import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin, { PluginNative } from "@utils/types";
-import { FluxDispatcher, GuildMemberStore, GuildStore, React, Tooltip, useEffect, useState, useStateFromStores } from "@webpack/common";
+import { FluxDispatcher, GuildMemberStore, GuildStore, React, ReactDOM, Tooltip, UserStore, useEffect, useLayoutEffect, useRef, useState, useStateFromStores } from "@webpack/common";
 
 const DONUT_SMP_GUILD_ID = "299949507989340160";
+const USER_JOIN_MESSAGE_TYPE = 7;
 const CACHE_TTL = 10 * 60 * 1000;
 const MAX_BALANCE_CACHE_ENTRIES = 500;
 const MAX_REQUESTED_MEMBERS = 1000;
@@ -114,6 +116,19 @@ async function fetchBalance(playerName: string) {
     return request;
 }
 
+function getMessageTargetUser(message?: MessageDecorationProps["message"]) {
+    if (message?.type !== 0) {
+        const mention = message?.mentions?.[0];
+        if (mention) return typeof mention === "string" ? UserStore.getUser(mention) : mention;
+    }
+
+    const author = message?.author;
+    if (author?.id) return author;
+
+    const mention = message?.mentions?.[0];
+    return typeof mention === "string" ? UserStore.getUser(mention) : mention;
+}
+
 function DonutBalance({ authorNick, channelGuildId, username, userId }: {
     authorNick?: string;
     channelGuildId?: string;
@@ -170,25 +185,115 @@ function DonutBalance({ authorNick, channelGuildId, username, userId }: {
     );
 }
 
+function WelcomeMessageBalance({ authorNick, channelGuildId, messageId, username, userId }: {
+    authorNick?: string;
+    channelGuildId?: string;
+    messageId?: string;
+    username?: string;
+    userId: string;
+}) {
+    const anchorRef = useRef<HTMLSpanElement>(null);
+    const [portalTarget, setPortalTarget] = useState<HTMLSpanElement | null>(null);
+    const displayName = authorNick ?? username;
+
+    useLayoutEffect(() => {
+        const anchor = anchorRef.current;
+        if (!anchor || !displayName) return;
+
+        const messageRow = anchor.closest("[id^='message-'], li, [role='article']");
+        if (!messageRow) return;
+
+        const previousTarget = messageId
+            ? messageRow.querySelector(`.vc-donut-smp-welcome-inline-target[data-message-id="${messageId}"]`)
+            : null;
+        previousTarget?.remove();
+
+        const walker = document.createTreeWalker(messageRow, NodeFilter.SHOW_ELEMENT);
+        let nameElement: HTMLElement | null = null;
+
+        while (walker.nextNode()) {
+            const element = walker.currentNode;
+            if (!(element instanceof HTMLElement) || element.contains(anchor)) continue;
+            if (element.children.length > 1) continue;
+            if (element.textContent?.trim() !== displayName) continue;
+
+            nameElement = element;
+            break;
+        }
+
+        if (!nameElement) return;
+
+        const target = document.createElement("span");
+        target.className = "vc-donut-smp-welcome-inline-target";
+        if (messageId) target.dataset.messageId = messageId;
+        nameElement.insertAdjacentElement("afterend", target);
+        setPortalTarget(target);
+
+        return () => {
+            setPortalTarget(null);
+            target.remove();
+        };
+    }, [displayName, messageId]);
+
+    const balance = (
+        <span className="vc-donut-smp-welcome-balance">
+            <DonutBalance
+                authorNick={authorNick}
+                channelGuildId={channelGuildId}
+                username={username}
+                userId={userId}
+            />
+        </span>
+    );
+
+    return (
+        <>
+            <span ref={anchorRef} className="vc-donut-smp-welcome-anchor" />
+            {portalTarget ? ReactDOM.createPortal(balance, portalTarget) : balance}
+        </>
+    );
+}
+
 export default definePlugin({
     name: "DonutSMPBalance",
     description: "Shows a DonutSMP money balance beside chat usernames when their DonutSMP Discord nickname matches a player.",
     tags: ["Chat", "Utility"],
     authors: [{ name: "Nybotic", id: 0n }],
     source: "https://github.com/nybotic/DonutSMPBalance",
-    dependencies: ["MessageDecorationsAPI"],
+    dependencies: ["MessageDecorationsAPI", "MessageAccessoriesAPI"],
 
     renderMessageDecoration(props: MessageDecorationProps) {
-        const userId = props.message?.author?.id;
+        const user = getMessageTargetUser(props.message);
+        const userId = user?.id;
         if (!userId) return null;
 
         return (
             <DonutBalance
                 authorNick={props.author?.nick}
                 channelGuildId={props.channel?.guild_id}
-                username={props.message.author.username}
+                username={user.username}
                 userId={userId}
             />
+        );
+    },
+
+    renderMessageAccessory(props: Record<string, any>) {
+        if (props.message?.type !== USER_JOIN_MESSAGE_TYPE) return null;
+
+        const user = getMessageTargetUser(props.message);
+        const userId = user?.id;
+        if (!userId) return null;
+
+        return (
+            <ErrorBoundary noop>
+                <WelcomeMessageBalance
+                    authorNick={props.author?.nick ?? user.username}
+                    channelGuildId={props.channel?.guild_id}
+                    messageId={props.message.id}
+                    username={user.username}
+                    userId={userId}
+                />
+            </ErrorBoundary>
         );
     }
 });
